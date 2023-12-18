@@ -1,61 +1,33 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Patt : MonoBehaviour
+public class EnemyPatrol : MonoBehaviour
 {
-    public GameObject pointA;
-    public GameObject pointB;
-    private Rigidbody2D rb;
-    private Animator anim;
-    private Transform currentPoint; 
-    public float speed;
-    // Start is called before the first frame update
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        anim =  GetComponent<Animator>();
-        currentPoint = pointB.transform; 
-        anim.SetBool("isRunning", true); 
-    }
+    public Transform[] patrolPoints;
+    public float walkSpeed;
+    public LayerMask flipPoint;
+    public int patrolDestination;
 
     // Update is called once per frame
     void Update()
     {
-        Vector2 point = currentPoint.position - transform.position;
-        if (currentPoint == pointB.transform)
+        if (Physics2D.OverlapCircle(transform.position, 0.2f, flipPoint))
         {
-            rb.velocity = new Vector2(speed, 0); 
+            if (patrolDestination == 0) { patrolDestination++;}
+            else if (patrolDestination == 1) { patrolDestination = 0;}
         }
-        else 
+        if(patrolDestination == 0)
         {
-            rb.velocity = new Vector2(-speed, 0); 
+            transform.localScale = new Vector2(transform.localScale.x * 1, transform.localScale.y);
+            walkSpeed *= 1;
         }
-
-        if(Vector2.Distance(transform.position, currentPoint.position) < 0.5f && currentPoint == pointB.transform)
+        else if (patrolDestination == 1)
         {
-            flip();
-            currentPoint = pointA.transform;
+            transform.localScale = new Vector2(transform.localScale.x * -1, transform.localScale.y);
+            walkSpeed *= -1;
         }
+            
 
-        if(Vector2.Distance(transform.position, currentPoint.position) < 0.5f && currentPoint == pointA.transform)
-        {
-            flip();
-            currentPoint = pointB.transform;
-        }
-    }
-
-    private void flip()
-    {
-        Vector3 localScale = transform.localScale;
-        localScale.x *= -1;
-        transform.localScale = localScale;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(pointA.transform.position, 0.5f);
-        Gizmos.DrawWireSphere(pointB.transform.position, 0.5f);
-        Gizmos.DrawLine(pointA.transform.position, pointB.transform.position);
     }
 }
